@@ -2,7 +2,8 @@ use std::env;
 use std::fs;
 use std::process;
 
-mod ast;
+mod compiler;
+use crate::compiler::ast;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
