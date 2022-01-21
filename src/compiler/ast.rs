@@ -135,11 +135,11 @@ pub fn get_reason(except: ExceptionFlag) -> String {
 }
 
 pub fn raise_exception(exception: ExceptTrace){
-    println!("{}", format!("Error!\n").bold().red());
-    println!("error on {} \n|\t{}{}{}", 
+    println!("{}", format!("~~~~~~ Error on building! ~~~~~~\n").bold().red());
+    println!("error on {}: \n|\t{}{}{}", 
         format!("instruction {}", exception.index).bold(), 
         format!("{}", exception.previous_line).bright_blue(),
-        format!("{}", exception.main_instruction).underline().bright_red(),
+        format!("{}", exception.main_instruction).bright_red(),
         format!("{}", exception.next_line).bright_blue()
     );
     println!("|\t{}{}{}\n", 
@@ -148,7 +148,7 @@ pub fn raise_exception(exception: ExceptTrace){
         format!("{}", "~".repeat(exception.next_line.len())).yellow()
     );
     println!("{}", format!("{}", exception.reason).bold());
-    println!("{}", format!("Exception: {:?}", exception.exc_type).bright_blue());
+    println!("{}\n", format!("Exception: {:?}", exception.exc_type).bright_blue());
 }
 
 pub fn build_exception(instruction_set: &Vec<Opcode>, except: ExceptionFlag, index: usize) -> ExceptTrace{
@@ -261,11 +261,11 @@ pub fn build_tree(opcode_list: Vec<Opcode>) -> Result<Node, i32>{
                     if loop_nodes.is_empty() {
                         current_node.insert_child(Instruction::LoopExit, index);
                         exceptions.push(build_exception(&opcode_list, ExceptionFlag::NonOpenLoop, index as usize));
-                        break;
-                    } 
+                    } else {
                         current_node = unsafe {&mut *loop_nodes.pop().unwrap()};
                         current_node.insert_child(Instruction::LoopExit, index);
                         current_node = current_node.children[1].as_mut().unwrap();
+                    }
                 }
 
                 Opcode::PrintStatement => {
@@ -291,9 +291,9 @@ pub fn build_tree(opcode_list: Vec<Opcode>) -> Result<Node, i32>{
 
     if !exceptions.is_empty() {
         for except in exceptions {
-            raise_exception(except);
-            return Err(-1);
+            raise_exception(except); 
         }
+        return Err(-1);
     }
 
     return Ok(root);
