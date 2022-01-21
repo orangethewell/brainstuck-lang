@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::collections::HashMap;
+use std::process;
 
 mod ast;
 
@@ -13,5 +13,9 @@ fn main() {
 
     let opcode_list = ast::decode_to_opcodes(content);
     let program = ast::build_tree(opcode_list);
+
+    if program.is_err() {
+        process::exit(program.err().unwrap());
+    }
 
 }
